@@ -1,26 +1,46 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import { FC, ChangeEvent, useState, FormEvent, useCallback } from "react";
+import styled from "styled-components";
+import { MemoList } from "./components/memoList";
+import { useMemoList } from "./hooks/useMemoList";
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+export const App: FC = () => {
+  const [text, setText] = useState<string>("");
+  const { memos, addTodo, deleteTodo } = useMemoList();
+
+  const onTextChange = (e: ChangeEvent<HTMLInputElement>) => {
+    setText(e.target.value);
+  };
+
+  const onClickAdd = (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    addTodo(text);
+    setText("");
+  };
+
+  const onClickDelete = useCallback(
+    (index: number) => {
+      deleteTodo(index);
+    },
+    [deleteTodo]
   );
-}
 
-export default App;
+  return (
+    <SContainer>
+      <h1>簡単メモアプリ</h1>
+      <form onSubmit={onClickAdd}>
+        <Input type="text" value={text} onChange={onTextChange} />
+        <Input type="submit" value="追加" />
+      </form>
+
+      <MemoList memos={memos} onMemoDelete={onClickDelete}></MemoList>
+    </SContainer>
+  );
+};
+
+const SContainer = styled.div`
+  padding: 16px;
+`;
+
+const Input = styled.input`
+  margin-right: 15px;
+`;
